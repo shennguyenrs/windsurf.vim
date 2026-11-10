@@ -56,9 +56,11 @@ function! s:commands.Auth(...) abort
   endif
 
   let config = get(g:, 'codeium_server_config', {})
-  let portal_url = get(config, 'portal_url', 'https://www.codeium.com')
-
-  let url = portal_url . '/profile?response_type=token&redirect_uri=vim-show-auth-token&state=a&scope=openid%20profile%20email&redirect_parameters_type=query'
+  if has_key(config, 'portal_url') && !empty(config.portal_url)
+    let url = config.portal_url . '/profile?response_type=token&redirect_uri=vim-show-auth-token&state=a&scope=openid%20profile%20email&redirect_parameters_type=query'
+  else
+    let url = 'https://windsurf.com/enterprise/account/login?redirect_uri=vim-show-auth-token'
+  endif
   let browser = codeium#command#BrowserCommand()
   let opened_browser = v:false
   if !empty(browser)
