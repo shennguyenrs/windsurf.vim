@@ -89,7 +89,7 @@ function! s:commands.Auth(...) abort
   if has_key(config, 'api_url') && !empty(config.api_url)
     let register_user_url = config.api_url . '/exa.seat_management_pb.SeatManagementService/RegisterUser'
   else
-    let register_user_url = 'https://api.codeium.com/register_user/'
+    let register_user_url = 'https://api.codeium.com/register_user'
   endif
 
   while empty(api_key) && tries < 3
@@ -112,8 +112,12 @@ function! s:commands.Auth(...) abort
             let response = system(command)
         endif
     endif
-    let res = json_decode(response)
-    let api_key = get(res, 'api_key', '')
+    try
+      let res = json_decode(response)
+    catch
+      let res = {}
+    endtry
+    let api_key = type(res) == v:t_dict ? get(res, 'api_key', get(res, 'apiKey', '')) : ''
     if empty(api_key)
       echomsg 'Unexpected response: ' . response
       call inputsave()
